@@ -81,11 +81,12 @@ static int  __init wakeup_test_init(void)
 	int err;
 
 	thread = kthread_run(wakeup_test_setup, &err, "wakeup_test");
-	if (IS_ERR(thread)) {
-		thread = NULL;
+	if (!IS_ERR(thread)) {
+		wait_for_completion(&setup_done);
+        } else {
 		err = PTR_ERR(thread);
+		thread = NULL;
 	}
-	wait_for_completion(&setup_done);
 
 	if (err) {
 		printk(KERN_ERR "wakeup_test: unable to create wakeup_test %i\n", err);
